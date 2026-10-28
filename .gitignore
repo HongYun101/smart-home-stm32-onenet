@@ -1,0 +1,31 @@
+# ===== Keil MDK 编译产物 =====
+*.o
+*.d
+*.crf
+*.axf
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.lnp
+*.dep
+*.htm
+*.iex
+*.sct
+*.bak
+*.uvguix.*
+*.scvd
+*.build_log.htm
+Objects/
+Listings/
+DebugConfig/
+RTE/
+
+# ===== 微信小程序私有配置 =====
+project.private.config.json
+
+# ===== 系统文件 =====
+Thumbs.db
+desktop.ini
+.DS_Store

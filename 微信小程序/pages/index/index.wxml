@@ -1,0 +1,221 @@
+<!-- index.wxml -->
+<view class="page-container">
+
+<!-- ===== 实时天气卡片（Open-Meteo API） ===== -->
+<view class="weather-card">
+  <view class="weather-top">
+    <view class="weather-location">
+      <view class="location-icon">📍</view>
+      <view class="location-name">南溪 · 宜宾市</view>
+    </view>
+    <view class="weather-time">实时天气</view>
+  </view>
+  <view class="weather-main">
+    <view class="weather-temp-block">
+      <view class="weather-temp">{{weather.temp}}°</view>
+      <view class="weather-desc">{{weather.emoji}} {{weather.desc}}</view>
+    </view>
+    <view class="weather-stats">
+      <view class="weather-stat-item">
+        <view class="stat-label">湿度</view>
+        <view class="stat-value">{{weather.humidity}}%</view>
+      </view>
+      <view class="weather-stat-divider"></view>
+      <view class="weather-stat-item">
+        <view class="stat-label">体感</view>
+        <view class="stat-value">{{weather.feelsLike}}℃</view>
+      </view>
+      <view class="weather-stat-divider"></view>
+      <view class="weather-stat-item">
+        <view class="stat-label">风速</view>
+        <view class="stat-value">{{weather.windSpeed}}km/h</view>
+      </view>
+    </view>
+  </view>
+  <view class="weather-tips">
+    <view class="tips-icon">💡</view>
+    <view class="tips-text">{{weather.tips}}</view>
+  </view>
+</view>
+
+<!-- ===== 环境监测 ===== -->
+<view class="section-header">
+  <view class="section-title">环境监测</view>
+  <view class="device-badge {{deviceStatusLog.data.list[0].status == 1 ? 'badge-online' : 'badge-offline'}}">
+    <view class="badge-dot"></view>
+    <view class="badge-text">{{deviceStatusLog.data.list[0].status == 1 ? '设备在线' : '设备离线'}}</view>
+  </view>
+</view>
+
+<view class="data-grid">
+
+  <!-- 当前温度 -->
+  <view class="data-card card-temp">
+    <view class="card-icon-wrap icon-temp">
+      <image src="/图片/CurrentTemperature.png" class="card-icon"/>
+    </view>
+    <view class="card-content">
+      <view class="card-label">当前温度</view>
+      <view class="card-value">{{deviceValueMap.wendu}}<text class="card-unit">℃</text></view>
+    </view>
+  </view>
+
+  <!-- 当前湿度 -->
+  <view class="data-card card-humidity">
+    <view class="card-icon-wrap icon-humidity">
+      <image src="/图片/CurrentHumidity.png" class="card-icon"/>
+    </view>
+    <view class="card-content">
+      <view class="card-label">当前湿度</view>
+      <view class="card-value">{{deviceValueMap.shidu}}<text class="card-unit">%</text></view>
+    </view>
+  </view>
+
+  <!-- BH1750 光照强度 -->
+  <view class="data-card card-light">
+    <view class="card-icon-wrap icon-light">
+      <image src="/图片/传感器.png" class="card-icon"/>
+    </view>
+    <view class="card-content">
+      <view class="card-label">光照强度</view>
+      <view class="card-value">{{deviceValueMap.LightLux}}<text class="card-unit">Lux</text></view>
+    </view>
+  </view>
+
+  <!-- MQ2 烟雾浓度 -->
+  <view class="data-card card-smoke">
+    <view class="card-icon-wrap icon-smoke">
+      <view class="card-emoji">💨</view>
+    </view>
+    <view class="card-content">
+      <view class="card-label">烟雾浓度</view>
+      <view class="card-value">{{deviceValueMap.yanwu}}<text class="card-unit">ppm</text></view>
+    </view>
+  </view>
+
+  <!-- MQ2 甲烷浓度 -->
+  <view class="data-card card-methane">
+    <view class="card-icon-wrap icon-methane">
+      <view class="card-emoji">🔥</view>
+    </view>
+    <view class="card-content">
+      <view class="card-label">甲烷 CH₄</view>
+      <view class="card-value">{{deviceValueMap.jiawan}}<text class="card-unit">ppm</text></view>
+    </view>
+  </view>
+
+  <!-- MQ2 丙烷浓度 -->
+  <view class="data-card card-propane">
+    <view class="card-icon-wrap icon-propane">
+      <view class="card-emoji">⚡</view>
+    </view>
+    <view class="card-content">
+      <view class="card-label">丙烷 C₃H₈</view>
+      <view class="card-value">{{deviceValueMap.bingwan}}<text class="card-unit">ppm</text></view>
+    </view>
+  </view>
+
+</view>
+
+<!-- ===== 气体安全检测 ===== -->
+<!-- 危险状态 -->
+<view class="danger-alert danger-active" wx:if="{{deviceValueMap.weixian == 1}}">
+  <view class="danger-icon-wrap">🚨</view>
+  <view class="danger-info">
+    <view class="danger-title">气体浓度超标！</view>
+    <view class="danger-desc">请立即开窗通风并检查气源</view>
+  </view>
+</view>
+<!-- 正常状态 -->
+<view class="danger-alert danger-safe" wx:else>
+  <view class="danger-icon-wrap">✅</view>
+  <view class="danger-info">
+    <view class="danger-title">气体浓度正常</view>
+    <view class="danger-desc">当前空气质量安全，无需担心</view>
+  </view>
+</view>
+
+<!-- ===== 智能控制 ===== -->
+<view class="section-header">
+  <view class="section-title">智能控制</view>
+</view>
+
+<view class="control-panel">
+
+  <!-- 灯1开关 -->
+  <view class="control-item">
+    <view class="control-left">
+      <view class="control-icon-wrap icon-led1">
+        <image src="/图片/LED1.png" class="control-icon"/>
+      </view>
+      <view class="control-info">
+        <view class="control-name">单片机上绿色灯</view>
+        <view class="control-desc">{{deviceValueMap.LED1 ? '已开启' : '已关闭'}}</view>
+      </view>
+    </view>
+    <switch
+      checked="{{deviceValueMap.LED1}}"
+      bindchange="onenet_set_device_property"
+      data-param="LED1"
+      color="#4A90E2"
+    />
+  </view>
+
+  <view class="control-divider"></view>
+
+  <!-- 继电器开关 -->
+  <view class="control-item">
+    <view class="control-left">
+      <view class="control-icon-wrap icon-jdq">
+        <image src="/图片/JDQ.png" class="control-icon"/>
+      </view>
+      <view class="control-info">
+        <view class="control-name">继电器</view>
+        <view class="control-desc">{{deviceValueMap.JDQ ? '已开启' : '已关闭'}}</view>
+      </view>
+    </view>
+    <switch
+      checked="{{deviceValueMap.JDQ}}"
+      bindchange="onenet_set_device_property"
+      data-param="JDQ"
+      color="#4A90E2"
+    />
+  </view>
+
+</view>
+
+<!-- ===== RGB LED 亮度控制 ===== 
+<view class="brightness-card">
+  <view class="brightness-header">
+    <view class="control-icon-wrap icon-led2">
+      <image src="/图片/LED2.png" class="control-icon"/>
+    </view>
+    <view class="brightness-info">
+      <view class="control-name">RGB-LED 小灯</view>
+      <view class="control-desc">亮度调节</view>
+    </view>
+    <view class="brightness-value-badge">{{deviceValueMap.LED2}}%</view>
+  </view>
+  <view class="brightness-slider-wrap">
+    <view class="slider-label">0%</view>
+    <slider
+      min="0"
+      max="100"
+      step="1"
+      value="{{deviceValueMap.LED2}}"
+      bindchange="onenet_set_device_property"
+      data-param="LED2"
+      show-value="{{false}}"
+      activeColor="#4A90E2"
+      backgroundColor="#E8EDF5"
+      block-color="#4A90E2"
+      class="brightness-slider"
+    />
+    <view class="slider-label">100%</view>
+  </view>
+</view>-->
+
+<!-- 底部间距 -->
+<view style="height: 60rpx;"></view>
+
+</view>

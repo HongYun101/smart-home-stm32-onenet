@@ -1,0 +1,260 @@
+
+产品ID：YOUR_PRODUCT_ID   	 ====Username
+设备名称：dev-001    	====Client ID
+设备密钥：YOUR_DEVICE_KEY_BASE64
+截止时间戳：1907299006
+token：version=2018-10-31&res=products%2FYOUR_PRODUCT_ID%2Fdevices%2Fdev-001&et=1907299006&method=md5&sign=YOUR_SIGN 		  ====Password
+
+
+1.设备属性上报
+上行(OneJSON）
+请求Topic:
+$sys/{pid}/{device-name}/thing/property/post：
+$sys/YOUR_PRODUCT_ID/dev-001/thing/property/post
+
+OneJSON数据格式:
+{
+  "id": "123",
+  "params": {
+    "shidu": {
+      "value": 22.4
+    },
+    "wendu": {
+      "value": 23.6
+    }
+  }
+}
+响应Topic:
+$sys/{pid}/{device-name}/thing/property/post/reply：
+$sys/YOUR_PRODUCT_ID/dev-001/thing/property/post/reply
+OneJSON数据格式:
+
+{
+  "id": "123",
+  "code":200,
+  "msg":"xxxx"
+}
+
+2.设备属性设置
+下行(OneJSON):
+请求Topic:
+
+$sys/{pid}/{device-name}/thing/property/set：
+$sys/YOUR_PRODUCT_ID/dev-001/thing/property/set
+OneJSON数据格式:
+
+{
+  "id": "123",
+  "version": "1.0",
+  "params": {
+    "temperature":"30.5"
+  }
+}
+响应Topic:
+$sys/{pid}/{device-name}/thing/property/set_reply：
+$sys/YOUR_PRODUCT_ID/dev-001/hing/property/set_reply
+OneJSON数据格式:
+
+{
+    "id":"123",
+    "code":200,
+    "msg":"xxxx"
+}
+
+"LED1":true
+
+
+
+
+
+
+
+
+
+
+
+网络与串口
+WiFi 名称 (SSID)
+YOUR_WIFI_SSID
+WiFi 密码
+YOUR_WIFI_PASSWORD
+串口波特率
+
+115200
+OneNet 平台参数
+产品 ID
+YOUR_PRODUCT_ID
+设备名称
+dev-001
+设备密钥 (Base64)
+YOUR_DEVICE_KEY_BASE64
+Token 过期时间
+
+2030/12/07 17:51
+消息 ID
+123
+验证 OneNet 参数
+✔ 验证成功 (0.0s)
+产品ID、设备名称、设备密钥均正确，Token 计算无误。
+Token 有效期至: 2030/12/7 17:51:00
+HTTP 验证用 (SHA1) 与 MQTT 接入用 (MD5) 使用不同的签名算法，分别展示如下:
+密钥 Hex
+YOUR_DEVICE_KEY_HEX
+HTTP签名原
+1922867460↵ sha1↵ products/YOUR_PRODUCT_ID/devices/dev-001↵ 2018-10-31
+HTTP Token
+version=2018-10-31&res=products%2FYOUR_PRODUCT_ID%2Fdevices%2Fdev-001&et=1922867460&method=sha1&sign=YOUR_SIGN
+MQTT签名原
+1922867460↵ md5↵ products/YOUR_PRODUCT_ID/devices/dev-001↵ 2018-10-31
+MQTT Token
+version=2018-10-31&res=products%2FYOUR_PRODUCT_ID%2Fdevices%2Fdev-001&et=1922867460&method=md5&sign=YOUR_SIGN
+说明: HTTP API 使用 SHA1 签名验证参数，MQTT 接入使用 MD5 签名。
+验证通过后，用串口助手将 AT 指令发送给 ESP8266 即可连接 OneNet。
+
+
+
+
+{
+  "version": "3.0",
+  "serial": {
+    "baud": "115200",
+    "dataBits": "8",
+    "stopBits": "1",
+    "parity": "none"
+  },
+  "chart": {
+    "enable": false,
+    "legends": "",
+    "maxPoints": "500"
+  },
+  "protocol": {
+    "start": "$",
+    "end": "#",
+    "sep": ","
+  },
+  "rx": {
+    "hex": false,
+    "autoScroll": true
+  },
+  "tx": {
+    "timerEnable": false,
+    "interval": "1000",
+    "addCRLF": true,
+    "hex": false
+  },
+  "commands": [
+    {
+      "cmd": "AT+RST",
+      "remark": "0. 模块复位 (建议盲发不等待回复)",
+      "active": true
+    },
+    {
+      "cmd": "AT",
+      "remark": "1. 模块测试与握手",
+      "active": false
+    },
+    {
+      "cmd": "AT+CWMODE=1",
+      "remark": "2. 设置 Station 模式",
+      "active": false
+    },
+    {
+      "cmd": "AT+CWJAP=\"YOUR_WIFI_SSID\",\"YOUR_WIFI_PASSWORD\"",
+      "remark": "3. 连接 WiFi",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTUSERCFG=0,1,\"dev-001\",\"YOUR_PRODUCT_ID\",\"version=2018-10-31&res=products%2FYOUR_PRODUCT_ID%2Fdevices%2Fdev-001&et=1922867460&method=md5&sign=YOUR_SIGN\",0,0,\"\"",
+      "remark": "4. 配置 MQTT 用户信息",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTCONN=0,\"mqtts.heclouds.com\",1883,1",
+      "remark": "5. 连接 OneNet MQTT 服务器",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTSUB=0,\"$sys/YOUR_PRODUCT_ID/dev-001/thing/property/post/reply\",0",
+      "remark": "6. 订阅属性上报 Reply 主题",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTPUB=0,\"$sys/YOUR_PRODUCT_ID/dev-001/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"version\\\":\\\"1.0\\\"\\,\\\"params\\\":{\\\"LED1\\\":{\\\"value\\\":true}\\,\\\"shidu\\\":{\\\"value\\\":13.4}\\,\\\"wendu\\\":{\\\"value\\\":28.6}}}\",0,0",
+      "remark": "7. 上报物模型数据",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTSUB=0,\"$sys/YOUR_PRODUCT_ID/dev-001/thing/property/set\",0",
+      "remark": "8. 订阅属性设置主题 (接收云端下发)",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTPUB=0,\"$sys/YOUR_PRODUCT_ID/dev-001/thing/property/set_reply\",\"{\\\"id\\\":\\\"6\\\"\\,\\\"code\\\":200\\,\\\"msg\\\":\\\"success\\\"}\",0,0",
+      "remark": "9. 回复云端属性设置 (返回成功)",
+      "active": false
+    },
+    {
+      "cmd": "AT+MQTTCLEAN=0",
+      "remark": "10. 断开 MQTT 连接",
+      "active": false
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+引脚:
+ESP8266
+	TXD→PB11
+	RXD→PB10
+	REST→PB0
+	GND→GND
+	VCC→ 5V-3.3V
+DHT11
+	GND→GND
+	VCC→ 3.3V
+	OUT→PB12
+OLED
+	GND→GND
+	VCC→ 3.3V
+	SCL→PB8
+	SDA→PB9
+BH1750
+ 	  VCC  (3.3V/5V) →  3.3V
+	  GND         →  GND
+ 	*  SCL          →  PB6    (I2C1_SCL)
+ 	*  SDA         →  PB7     (I2C1_SDA)
+ 	 ADDR        →  GND   (地址=0x46) 或 VCC (地址=0xB8)可无
+MQ-2
+	引脚	           名称	        功能	                                    接 STM32
+	VCC	           电源正极       	给加热丝 + 电路供电	            5V（不是 3.3V！）
+	GND	           电源地	        共地	                                    GND
+	A0	          模拟输出	        随气体浓度变化的电压        	    STM32 ADC 通道引脚
+	D0	          数字输出         	超过阈值 → 高电平	            STM32 任意 GPIO 输入引脚
+
+	 *  - VCC  -> 5V (传感器供电)
+            *  - GND  -> GND
+            *  - AOUT -> PA5 (ADC1_IN5)   ← 检测甲烷/丙烷/烟雾 模拟信号
+            *  - DOUT -> PA6 (GPIO_INPUT) ← 数字报警 (浓度超阈值输出低/高电平)
+JDQ
+	PA4
+
+
+stm32f1xx_hal_adc.h
+
+
+
+
+
+
+微信小程序API调用
+userid:YOUR_USER_ID
+AccessKey:YOUR_ACCESS_KEY
+token:version=2022-05-01&res=userid%2FYOUR_USER_ID&et=1907299006&method=md5&sign=YOUR_SIGN
